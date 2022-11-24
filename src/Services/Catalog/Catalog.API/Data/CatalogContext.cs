@@ -4,10 +4,10 @@ using MongoDB.Driver;
 
 namespace Catalog.API.Data
 {
-    public class CatalogContext : ICatalogContext
+    public class CatalogRepository : ICatalogContext
     {
 
-        public CatalogContext(IConfiguration configuration)
+        public CatalogRepository(IConfiguration configuration)
         {
             var client = new MongoClient(configuration.GetValue<string>("DatabaseSettingd:ConnectionString"));
             var database = client.GetDatabase(configuration.GetValue<string>("DatabaseSettingd:DatabaseName"));
