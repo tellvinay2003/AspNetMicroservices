@@ -13,8 +13,7 @@
     
     
     <!-- This folder will contain componsnts responsible for application behavior eg: validation, Logging behaviors and other cross-cutting concerns-->
-    <Folder Include="Behaviours\" />
-    <Folder Include="Features\Orders\Commands\DeleteOrder\" /> 
+    <Folder Include="Behaviours\" /> 
     
     
     <!-- This folder will contain implementation for CQRS pattern for handling business use cases -->
