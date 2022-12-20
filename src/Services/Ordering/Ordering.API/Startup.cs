@@ -1,17 +1,15 @@
+using EventBus.Messaging.Common;
+using MassTransit;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using Ordering.API.EventBusConsumer;
 using Ordering.Application;
+using Ordering.Application.Features.Orders.Commands.CheckoutOrder;
 using Ordering.Infrastructure;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Ordering.API
 {
@@ -29,6 +27,30 @@ namespace Ordering.API
         {
             services.AddApplicationServices();
             services.AddInfrastructureServices(Configuration);
+
+            // configuring rabbitMq and MassTransit for OrderingAPI
+            services.AddMassTransit(options => {
+
+                options.AddConsumer<BasketCheckoutConsumer>();
+
+                options.UsingRabbitMq((ctx, cfg) => {
+                    cfg.Host(Configuration["EventBusSettings:HostAddress"]);
+                    cfg.ReceiveEndpoint(EventBusConstants.BasketCheckoutQueue, c => {
+                        c.ConfigureConsumer<BasketCheckoutConsumer>(ctx);
+                    });
+                });
+            });
+
+
+            // register AutoMapper
+            services.AddAutoMapper(typeof(Startup));
+            services.AddScoped<BasketCheckoutConsumer>();
+
+            // Not required for MassTransit version >=8
+            // services.AddMassTransitHostedService();
+
+            services.AddSingleton<Microsoft.Extensions.Logging.ILogger>(provider =>
+   provider.GetRequiredService<Microsoft.Extensions.Logging.ILogger<CheckoutOrderCommandHandler>>());
 
             services.AddControllers();
             services.AddSwaggerGen(c =>
